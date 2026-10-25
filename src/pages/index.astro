@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro'
+import PageFrame from '../components/PageFrame.astro'
+import Nav from '../components/Nav.astro'
+import Hero from '../components/Hero.astro'
+import About from '../components/About.astro'
+import FocusList from '../components/FocusList.astro'
+import WorkIndex from '../components/WorkIndex.astro'
+import Contact from '../components/Contact.astro'
+import Footer from '../components/Footer.astro'
+---
+
+<Layout>
+  <div id="top"></div>
+  <PageFrame />
+  <Nav />
+  <main id="main" tabindex="-1" class="focus:outline-none">
+    <Hero />
+    <About />
+    <FocusList />
+    <WorkIndex />
+    <Contact />
+  </main>
+  <Footer />
+</Layout>

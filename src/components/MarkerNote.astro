@@ -1,0 +1,20 @@
+---
+// Handwritten note in the accent colour. Fades in with its annotation group.
+interface Props {
+  class?: string
+  delay?: number
+  /** Tilt in degrees. */
+  rotate?: number
+}
+
+const { class: className = '', delay = 0, rotate = -4 } = Astro.props
+---
+
+<span
+  class:list={['annotation inline-block', className]}
+  style={`--draw-delay: ${delay}ms; --note-rotate: ${rotate}deg`}
+>
+  <span class="annotation-note inline-block font-marker text-accent-text leading-none whitespace-nowrap">
+    <slot />
+  </span>
+</span>

@@ -1,0 +1,45 @@
+---
+import { site } from '../config/site'
+import SectionHeading from './SectionHeading.astro'
+import MarkerNote from './MarkerNote.astro'
+import Annotation from './Annotation.astro'
+---
+
+<section aria-labelledby="focus" class="mx-auto max-w-6xl scroll-mt-24 px-6 py-20 md:px-10 md:py-28">
+  <div class="relative">
+    <SectionHeading id="focus" index="02" title="What I'm into" accent="into" />
+    <div class="pointer-events-none absolute right-0 bottom-0 hidden items-center gap-2 md:flex">
+      <MarkerNote class="text-2xl" delay={200} rotate={-3}>the stuff I'm building toward</MarkerNote>
+      <Annotation shape="squiggle" class="h-4 w-16" delay={200} />
+    </div>
+  </div>
+
+  <ol class="border-b border-fg/15">
+    {
+      site.focus.map((area, i) => {
+        const [before, after] = area.title.split(area.accent)
+        return (
+          <li class="group grid gap-x-8 gap-y-3 border-t border-fg/15 py-8 md:grid-cols-12 md:py-10">
+            <span class="font-mono text-sm text-muted transition-colors duration-300 group-hover:text-accent-text md:col-span-1 md:pt-2">
+              0{i + 1}
+            </span>
+            <h3 class="text-[clamp(1.75rem,3.6vw,2.75rem)] font-[700] leading-none tracking-[-0.035em] transition-transform duration-500 ease-[var(--ease-out-soft)] group-hover:translate-x-1.5 md:col-span-5">
+              {before}<span class="accent-serif text-[1.1em]">{area.accent}</span>{after}
+            </h3>
+            <div class="md:col-span-6">
+              <p class="text-lg leading-snug tracking-[-0.005em] text-fg/85">{area.line}</p>
+              <ul class="mt-3 flex flex-wrap gap-y-1 font-mono text-[13px] leading-relaxed text-muted" aria-label={`${area.title} tools`}>
+                {area.tools.map((tool, j) => (
+                  <li class="whitespace-nowrap">
+                    {j > 0 && <span class="px-1.5 text-accent-text" aria-hidden="true">/</span>}
+                    {tool}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        )
+      })
+    }
+  </ol>
+</section>

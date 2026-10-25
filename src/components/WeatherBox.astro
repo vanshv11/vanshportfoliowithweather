@@ -1,0 +1,202 @@
+---
+// Square live-weather box (top-right of the hero). Data: OpenWeather via src/lib/watchWeather.ts.
+// Server-renders the loading skeleton; the script below fills in the reading.
+import { site } from '../config/site'
+
+interface Props {
+  class?: string
+}
+
+const { class: className = '' } = Astro.props
+const { city, latitude, longitude, units } = site.weather
+const configured = latitude !== null && longitude !== null
+---
+
+{
+  configured && (
+    <div
+      role="region"
+      aria-label="Current weather"
+      class:list={['weather-box relative shrink-0 rounded-2xl border border-line bg-surface font-sans', className]}
+      data-weather-box
+      data-status="loading"
+      data-lat={latitude}
+      data-lon={longitude}
+      data-units={units}
+      data-city={city}
+    >
+      <div class="wb-skeleton wb-pad flex h-full flex-col" aria-hidden="true">
+        <div class="flex items-start justify-between">
+          <span class="wb-bone h-[0.75em] w-[45%]" />
+          <span class="wb-bone wb-icon rounded-full" />
+        </div>
+        <span class="wb-bone mt-auto h-[0.85em] w-[50%] text-[length:var(--wb-temp)]" />
+        <span class="wb-bone mt-[0.7em] h-[0.8em] w-[60%]" />
+        <span class="wb-bone mt-[0.5em] h-[0.7em] w-[80%]" />
+        <span class="wb-bone mt-[0.5em] h-[0.7em] w-[40%]" />
+      </div>
+
+      <div class="wb-content wb-pad absolute inset-0 flex flex-col">
+        <div class="flex items-start justify-between gap-2">
+          <p class="wb-small truncate font-mono uppercase tracking-[0.12em] text-muted" data-wb-city>{city}</p>
+          <svg
+            class="wb-icon shrink-0 text-accent"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+            data-wb-icon
+          />
+        </div>
+        <p class="wb-temp mt-auto font-[750] tracking-[-0.05em] text-fg tabular-nums" aria-live="polite" aria-atomic="true">
+          <span data-wb-temp>--</span><span class="wb-unit font-[500] text-muted">{units === 'imperial' ? '°F' : '°C'}</span>
+        </p>
+        <p class="wb-desc truncate text-fg/80" data-wb-desc />
+        <p class="wb-small mt-[0.4em] text-muted tabular-nums" data-wb-details />
+        <p class="wb-small wb-updated font-mono text-muted" data-wb-updated />
+        <p class="wb-small wb-demo font-mono text-accent-text">demo data</p>
+      </div>
+
+      <p class="wb-error wb-pad wb-desc absolute inset-0 flex items-end text-muted">Weather unavailable</p>
+    </div>
+  )
+}
+
+<style>
+  .weather-box {
+    /* Smaller in-flow size on narrow screens; spec size beside the heading on desktop. */
+    width: clamp(144px, 38vw, 176px);
+    aspect-ratio: 1 / 1;
+    container-type: inline-size;
+    --wb-temp: 25cqw;
+  }
+  @media (min-width: 1024px) {
+    .weather-box {
+      width: clamp(160px, 16vw, 240px);
+    }
+  }
+  .wb-pad {
+    padding: 8cqw;
+  }
+  .wb-icon {
+    width: 15cqw;
+    height: 15cqw;
+  }
+  .wb-temp {
+    font-size: var(--wb-temp);
+    line-height: 0.95;
+  }
+  .wb-unit {
+    font-size: 0.4em;
+    vertical-align: 0.95em;
+    margin-left: 0.08em;
+    letter-spacing: 0;
+  }
+  .wb-desc {
+    font-size: max(11px, 6cqw);
+    line-height: 1.3;
+  }
+  .wb-small {
+    font-size: max(9.5px, 4.6cqw);
+    line-height: 1.35;
+  }
+  .wb-bone {
+    display: block;
+    border-radius: 4px;
+    background: var(--color-line);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .wb-bone {
+      animation: wb-pulse 1.6s ease-in-out infinite;
+    }
+  }
+  @keyframes wb-pulse {
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  /* State: loading → skeleton; ready/mock → content (short fade-in); error → calm message. */
+  .wb-content,
+  .wb-error,
+  .wb-demo {
+    display: none;
+  }
+  [data-status='ready'] .wb-content,
+  [data-status='mock'] .wb-content {
+    display: flex;
+    animation: wb-fade 300ms ease-out;
+  }
+  [data-status='error'] .wb-error,
+  [data-status='mock'] .wb-demo {
+    display: flex;
+  }
+  [data-status='ready'] .wb-skeleton,
+  [data-status='mock'] .wb-skeleton,
+  [data-status='error'] .wb-skeleton {
+    visibility: hidden;
+  }
+  [data-status='mock'] .wb-updated {
+    display: none;
+  }
+  @keyframes wb-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-status] .wb-content {
+      animation: none;
+    }
+  }
+  /* Without JS there is no data to show. */
+  :global(.no-js) .weather-box {
+    display: none;
+  }
+</style>
+
+<script>
+  import { watchWeather, type WeatherState } from '../lib/watchWeather'
+  import type { Condition, Units } from '../lib/weather'
+
+  // Icon paths from Lucide (ISC licence): Sun, Moon, Cloud, CloudRain, CloudLightning, CloudSnow, CloudFog.
+  const RAIN_CLOUD = '<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>'
+  const ICONS: Record<Condition | 'night', string> = {
+    clear:
+      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+    night: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+    clouds: '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+    rain: `${RAIN_CLOUD}<path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/>`,
+    storm: '<path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/>',
+    snow: `${RAIN_CLOUD}<path d="M8 15h.01"/><path d="M8 19h.01"/><path d="M12 17h.01"/><path d="M12 21h.01"/><path d="M16 15h.01"/><path d="M16 19h.01"/>`,
+    mist: `${RAIN_CLOUD}<path d="M16 17H7"/><path d="M17 21H9"/>`,
+  }
+
+  const box = document.querySelector<HTMLElement>('[data-weather-box]')
+
+  if (box) {
+    const { lat, lon, units = 'metric', city = '' } = box.dataset
+    const $ = (name: string) => box.querySelector<HTMLElement>(`[data-wb-${name}]`)!
+    const imperial = units === 'imperial'
+
+    const render = ({ data, status }: WeatherState) => {
+      box.dataset.status = status
+      if (!data) return
+      $('city').textContent = data.city
+      $('icon').innerHTML = ICONS[data.condition === 'clear' && !data.isDay ? 'night' : data.condition]
+      $('temp').textContent = String(Math.round(data.temp))
+      $('desc').textContent = data.description
+      const wind = imperial ? `${Math.round(data.windSpeed)} mph` : `${Math.round(data.windSpeed * 3.6)} km/h`
+      $('details').textContent = `Feels ${Math.round(data.feelsLike)}° · ${data.humidity}% · ${wind}`
+      $('updated').textContent = data.updatedAt
+        ? `Updated ${new Date(data.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`
+        : ''
+    }
+
+    watchWeather({ lat: Number(lat), lon: Number(lon), units: units as Units, city }, render)
+  }
+</script>

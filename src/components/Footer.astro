@@ -1,0 +1,73 @@
+---
+import { site } from '../config/site'
+import SocialButton from './SocialButton.astro'
+import Icon from './Icon.astro'
+---
+
+<footer class="relative mt-10 overflow-hidden border-t border-line bg-surface text-fg">
+  <div class="mx-auto max-w-6xl px-6 pt-14 md:px-10 md:pt-20">
+    <div class="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+      <p class="max-w-md text-2xl font-[600] leading-tight tracking-[-0.02em]">
+        Thanks for reading these <span class="accent-serif text-[1.1em] text-accent">field notes</span>.
+        More pages soon.
+      </p>
+      <ul class="flex gap-3" aria-label="Social links">
+        {
+          site.socials.map((social) => (
+            <li>
+              <SocialButton social={social} size="sm" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div
+      class="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line py-5 font-mono text-[12px] uppercase tracking-[0.14em] text-muted"
+    >
+      <span class="flex items-center gap-2 text-fg">
+        <span class="inline-block size-2 rounded-full bg-accent" aria-hidden="true"></span>
+        Currently: {site.status}
+      </span>
+      {
+        site.timezone && (
+          <span>
+            Local time <time data-local-time data-tz={site.timezone} class="text-fg">--:--</time>
+          </span>
+        )
+      }
+      <span>© {site.year} {site.name}</span>
+      {
+        site.weather.latitude !== null && (
+          <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer" class="ink-link">
+            Weather by OpenWeather
+          </a>
+        )
+      }
+      <a href="#top" class="ink-link ml-auto inline-flex items-center gap-1.5 text-fg">
+        Back to top <Icon name="arrow-up" class="size-3.5" />
+      </a>
+    </div>
+  </div>
+
+  <p
+    aria-hidden="true"
+    class="pointer-events-none -mb-[0.2em] select-none whitespace-nowrap text-center text-[clamp(4rem,19vw,17rem)] font-[800] leading-none tracking-[-0.06em] text-fg/[0.05]"
+  >
+    {site.firstName} <span class="accent-serif">{site.lastName}</span>
+  </p>
+</footer>
+
+<script>
+  const el = document.querySelector<HTMLTimeElement>('[data-local-time]')
+  if (el?.dataset.tz) {
+    const fmt = new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: el.dataset.tz,
+    })
+    const tick = () => (el.textContent = fmt.format(new Date()))
+    tick()
+    setInterval(tick, 30_000)
+  }
+</script>

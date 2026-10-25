@@ -1,0 +1,26 @@
+---
+// "// 01 — About" style section header with a hairline rule.
+interface Props {
+  id: string
+  index: string
+  /** Heading text; the `accent` word is set in italic serif. */
+  title: string
+  accent?: string
+}
+
+const { id, index, title, accent } = Astro.props
+const parts = accent ? title.split(accent) : [title]
+---
+
+<header class="mb-10 md:mb-14">
+  <div class="flex items-center gap-4 font-mono text-xs uppercase tracking-[0.18em] text-muted">
+    <span class="text-accent-text">// {index}</span>
+    <span class="h-px flex-1 bg-line"></span>
+  </div>
+  <h2
+    id={id}
+    class="mt-5 text-[clamp(2.4rem,6vw,4.5rem)] font-[750] leading-[0.95] tracking-[-0.035em]"
+  >
+    {parts[0]}{accent && <span class="accent-serif text-[1.08em]">{accent}</span>}{parts[1]}
+  </h2>
+</header>

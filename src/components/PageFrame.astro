@@ -1,0 +1,18 @@
+---
+// Thin printed-page frame around the viewport, with vertical margin text on wide screens.
+import { site } from '../config/site'
+---
+
+<div aria-hidden="true" class="pointer-events-none fixed inset-0 z-40">
+  <div class="absolute inset-2 border border-fg/12 md:inset-4"></div>
+  <p
+    class="absolute top-1/2 left-0 hidden w-4 -translate-y-1/2 font-mono text-[10px] uppercase tracking-[0.3em] text-muted [writing-mode:vertical-rl] rotate-180 lg:flex lg:w-4 lg:items-center lg:justify-center"
+  >
+    {site.name} — Portfolio — {site.year}
+  </p>
+  <p
+    class="absolute top-1/2 right-0 hidden w-4 -translate-y-1/2 font-mono text-[10px] uppercase tracking-[0.3em] text-muted [writing-mode:vertical-rl] lg:flex lg:items-center lg:justify-center"
+  >
+    Field notes · Nº 01
+  </p>
+</div>

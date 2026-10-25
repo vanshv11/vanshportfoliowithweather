@@ -1,0 +1,65 @@
+---
+// Hand-drawn marker annotation. Strokes draw in once when scrolled into view
+// (see src/scripts/annotations.ts). Purely decorative — hidden from assistive tech.
+
+interface Props {
+  shape: 'circle' | 'underline' | 'arrow' | 'arrow-left' | 'squiggle'
+  class?: string
+  /** Delay before drawing, in ms. */
+  delay?: number
+}
+
+const { shape, class: className = '', delay = 0 } = Astro.props
+
+const shapes = {
+  circle: {
+    viewBox: '0 0 200 80',
+    paths: [
+      'M30 14 C80 2 168 4 192 30 C208 54 152 76 94 74 C36 72 4 58 8 38 C12 18 58 6 124 9',
+    ],
+  },
+  underline: {
+    viewBox: '0 0 200 16',
+    paths: ['M4 11 C48 4 118 13 196 5'],
+  },
+  arrow: {
+    viewBox: '0 0 120 100',
+    paths: ['M12 8 C30 30 58 50 98 82', 'M78 80 L99 84 L96 62'],
+  },
+  'arrow-left': {
+    viewBox: '0 0 120 100',
+    paths: ['M108 10 C88 34 60 56 22 82', 'M42 82 L20 84 L25 63'],
+  },
+  squiggle: {
+    viewBox: '0 0 120 24',
+    paths: ['M4 14 C14 2 24 2 32 12 C40 22 50 22 58 12 C66 2 76 2 84 12 C92 22 102 22 116 8'],
+  },
+} as const
+
+const { viewBox, paths } = shapes[shape]
+---
+
+<svg
+  class:list={['annotation pointer-events-none text-accent', className]}
+  viewBox={viewBox}
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+  preserveAspectRatio="none"
+  style={`--draw-delay: ${delay}ms`}
+>
+  {
+    paths.map((d, i) => (
+      <path
+        d={d}
+        pathLength="1"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
+        style={`transition-delay: ${delay + i * 350}ms`}
+      />
+    ))
+  }
+</svg>

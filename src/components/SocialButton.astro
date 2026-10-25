@@ -1,0 +1,68 @@
+---
+// A social link. While `href` is empty it renders as a non-navigating button
+// with a visible "link coming soon" hint on hover/focus.
+import type { Social } from '../config/site'
+import Icon from './Icon.astro'
+
+interface Props {
+  social: Social
+  size?: 'sm' | 'lg'
+}
+
+const { social, size = 'lg' } = Astro.props
+const pending = social.href === ''
+const hintId = `hint-${social.id}-${size}`
+
+const base =
+  size === 'lg'
+    ? 'group relative flex w-full items-center gap-4 border-t border-fg/15 py-5 text-left text-[clamp(1.5rem,3.5vw,2.25rem)] font-[650] tracking-[-0.02em] transition-colors duration-300 hover:text-accent-text focus-visible:text-accent-text'
+    : 'group relative inline-flex size-10 items-center justify-center rounded-full border border-fg/20 transition-colors duration-200 hover:border-fg hover:bg-fg hover:text-canvas focus-visible:bg-fg focus-visible:text-canvas'
+---
+
+{
+  pending ? (
+    <button
+      type="button"
+      class={base}
+      aria-label={size === 'sm' ? `${social.label} (link coming soon)` : social.label}
+      title={size === 'sm' ? `${social.label} — link coming soon` : undefined}
+      aria-describedby={size === 'lg' ? hintId : undefined}
+    >
+      {size === 'lg' ? (
+        <>
+          <Icon name={social.id} class="size-7 shrink-0" />
+          <span>{social.label}</span>
+          <span
+            id={hintId}
+            class="ml-auto whitespace-nowrap font-mono text-[10px] font-normal uppercase tracking-[0.12em] sm:text-xs sm:tracking-[0.14em] text-muted opacity-60 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
+          >
+            link coming soon
+          </span>
+        </>
+      ) : (
+        <Icon name={social.id} class="size-[18px]" />
+      )}
+    </button>
+  ) : (
+    <a
+      href={social.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      class={base}
+      aria-label={size === 'sm' ? social.label : undefined}
+    >
+      {size === 'lg' ? (
+        <>
+          <Icon name={social.id} class="size-7 shrink-0" />
+          <span>{social.label}</span>
+          <Icon
+            name="arrow-up-right"
+            class="ml-auto size-6 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          />
+        </>
+      ) : (
+        <Icon name={social.id} class="size-[18px]" />
+      )}
+    </a>
+  )
+}

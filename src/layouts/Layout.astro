@@ -1,0 +1,57 @@
+---
+import '../styles/global.css'
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+import { site } from '../config/site'
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const { title = `${site.name} — Developer`, description = site.description } = Astro.props
+const canonical = new URL(Astro.url.pathname, site.url)
+const ogImage = new URL('/og.png', site.url)
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#0b0d0e" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script is:inline>
+      document.documentElement.classList.remove('no-js')
+    </script>
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only z-50 rounded-full bg-accent px-5 py-3 font-mono text-xs uppercase tracking-[0.14em] text-canvas focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:px-5 focus:py-3"
+    >
+      Skip to content
+    </a>
+    <slot />
+    <script>
+      import '../scripts/annotations'
+    </script>
+  </body>
+</html>
